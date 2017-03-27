@@ -1,4 +1,5 @@
 from telebot import types
+import duckduckpy
 
 
 # This is an abstract class for menu item
@@ -86,8 +87,11 @@ class MenuNodeQuestion(MenuNodeInterface):
         if query is not None and message is None:
             message = query.message
         text = message.text
-        # Display answer here!
-        tb.send_message(message.chat.id, 'Yes')
+        reply = duckduckpy.query(message.text)
+        result = u'No idea'
+        if reply.answer != u'':
+            result = reply.answer
+        tb.send_message(message.chat.id, result)
         return self.force_move
 
     def current_position(self):
