@@ -1,5 +1,6 @@
 from telebot import types
 import duckduckpy
+import numpy as np
 
 
 # This is an abstract class for menu item
@@ -77,6 +78,8 @@ class MenuNodeQuestion(MenuNodeInterface):
     def __init__(self, init_dict):
         MenuNodeInterface.__init__(self, init_dict)
         self.force_move = init_dict['ForceMove']
+        if self.probabilistic:
+            self.probabilities = init_dict['Probabilities']
 
     def display(self, tb, message=None, query=None):
         if query is not None and message is None:
@@ -92,7 +95,10 @@ class MenuNodeQuestion(MenuNodeInterface):
         if reply.answer != u'':
             result = reply.answer
         tb.send_message(message.chat.id, result)
-        return self.force_move
+        next_node = self.force_move
+        if self.probabilistic:
+            next_node = np.random.choice(self.probabilities.keys(), size=1, p=self.probabilities.values())[0]
+        return next_node
 
     def current_position(self):
         return self.force_move

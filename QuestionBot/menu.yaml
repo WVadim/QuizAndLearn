@@ -15,7 +15,11 @@ Nodes:
     Class: MenuNodeQuestion
     ForceMove: 7
     Inline: True
-    Probabilistic: False
+    Probabilistic: True
+    Probabilities:
+      7: 0.2
+      4: 0.8
+
 
   - ID : 2
     Parent : 0
@@ -70,6 +74,7 @@ Nodes:
     Inline: True
     Probabilistic: True
     Probability: 0.2
+
     Children:
         "Yes" : [4, False]
         "No" : [4, False]
