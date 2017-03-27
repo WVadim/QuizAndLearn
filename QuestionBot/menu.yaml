@@ -1,0 +1,93 @@
+Nodes:
+  - ID : 0
+    Parent : -1
+    Text: "Hello, i'm QuestionBot, do you want to ask me something?"
+    Class: MenuNodeCommon
+    Inline: True
+    Probabilistic: False
+    Children:
+        "Yes" : [1, False]
+        "No" : [2, False]
+
+  - ID : 1
+    Parent : 0
+    Text: "Ok, ask me your question!"
+    Class: MenuNodeQuestion
+    ForceMove: 7
+    Inline: True
+    Probabilistic: False
+
+  - ID : 2
+    Parent : 0
+    Text: "Maybe you want to help someone with question?"
+    Class: MenuNodeCommon
+    Inline: True
+    Probabilistic: False
+    Children:
+        "Yes" : [6, False]
+        "No" : [5, False]
+
+  - ID : 3
+    Parent : 0
+    Text: "ThereIsNoTextHere"
+    Class: MenuNodeQuestionResolve
+    Inline: False
+    Probabilistic: False
+    ForceMove: 3
+
+  - ID : 4
+    Parent : 0
+    Text: "Do you want to ask another question?"
+    Class: MenuNodeCommon
+    Inline: True
+    Probabilistic: False
+    Children:
+        "Yes" : [1, False]
+        "No" : [2, False]
+
+  - ID : 5
+    Parent : 0
+    Text: "Then go fuck yourself?"
+    Class: MenuNodeCommon
+    Inline: True
+    Probabilistic: False
+    Children:
+        "Sure" : [0, False]
+        "I've already did it" : [0, False]
+
+  - ID : 6
+    Parent : 0
+    Text: "ThereIsNoTextHere"
+    Class: MenuNodeReply
+    Inline: False
+    Probabilistic: False
+    ForceMove: 9
+
+  - ID : 7
+    Parent : 0
+    Text: "Is reply relevant to question?"
+    Class: MenuNodeCommon
+    Inline: True
+    Probabilistic: True
+    Probability: 0.2
+    Children:
+        "Yes" : [4, False]
+        "No" : [4, False]
+
+  - ID : 8
+    Parent : 0
+    Text: "ThereIsNoTextHere"
+    Class: MenuNodeReplyResolve
+    Inline: False
+    Probabilistic: False
+    ForceMove: 9
+
+  - ID : 9
+    Parent : 0
+    Text: "Do you want to answer another question?"
+    Class: MenuNodeCommon
+    Inline: True
+    Probabilistic: False
+    Children:
+        "Yes" : [6, False]
+        "No" : [0, False]
