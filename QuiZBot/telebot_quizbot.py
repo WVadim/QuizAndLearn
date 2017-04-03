@@ -10,9 +10,9 @@ from telebot import types
 bot = telebot.TeleBot("335396227:AAEJ5MWykURPRRFTMNso2NFT90o6Jn93bz8")
 requested = None
 answering = None
-answers=[]
-questions=[]
-cont=0
+answers = []
+questions = []
+cont = 0
 
 
 @bot.message_handler(commands=[u'start', u'help'])
@@ -41,7 +41,6 @@ def pull(message):
     cont = 0
 
 
-
 @bot.message_handler(func=lambda message: True)
 def check_answer(message):
     global requested
@@ -54,7 +53,7 @@ def check_answer(message):
             # Get random questions of Geography from the connector according to the theme
             if (message.text == u'Geography'):
                 questions = [u'What is the capital city of Spain?', u'Another one', u'another one']
-                #Send the first question
+                # Send the first question
                 q = questions[cont]
 
                 # Query to the connector to get the options to that question
@@ -74,14 +73,15 @@ def check_answer(message):
 
 
         else:
-            if(cont < 3):
-                #Store answer in answers
-                answers.insert(cont-1, message.text)
-                #next question
+            if (cont < 3):
+
+                # Store answer in answers
+                answers.insert(cont - 1, message.text)
+                # next question
                 q = questions[cont]
 
-                #Query to the connector to get the options to that question
-                opts=[u'Valencia', u'Barcelona', u'Madrid', u'Seville']
+                # Query to the connector to get the options to that question
+                opts = [u'Valencia', u'Barcelona', u'Madrid', u'Seville']
 
                 bot.send_message(message.chat.id, q)
                 markup = types.ReplyKeyboardMarkup()
@@ -92,14 +92,15 @@ def check_answer(message):
                 markup.row(itembtnone, itembtntwo)
                 markup.row(itembtnthree, itembtnfour)
                 bot.send_message(message.chat.id, u'Choose one option:', reply_markup=markup)
-                cont = cont+1
+                cont = cont + 1
 
             else:
-                #Storing the last one
+                # Storing the last one
                 answers.insert(cont - 1, message.text)
                 answering = False
                 bot.send_message(message.chat.id, u'Checking your answers...')
-                bot.send_message(message.chat.id, "Your answers are: "+answers[0]+", "+answers[1]+", "+answers[2])
+                bot.send_message(message.chat.id,
+                                 u'Your answers are: ' + answers[0] + ', ' + answers[1] + ', ' + answers[2])
                 # Connecting to the database to check
                 markup = types.ReplyKeyboardRemove(selective=False)
                 # if (message.text == u'Madrid'):
@@ -107,7 +108,8 @@ def check_answer(message):
                 # else:
                 #     bot.reply_to(message, u'You are wrong!', reply_markup=markup)
 
-                bot.send_message(message.chat.id,"You have answered the 90% of the answers correctly", reply_markup=markup)
+                bot.send_message(message.chat.id, u'You have answered the 90% of the answers correctly',
+                                 reply_markup=markup)
                 requested = False
 
     else:
