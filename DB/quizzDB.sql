@@ -16,6 +16,7 @@ CREATE TABLE answers (
 	ID				INT UNSIGNED	NOT NULL AUTO_INCREMENT,
 	PRIMARY KEY (ID),			#Storage of most frequent answer (taken as the correct one)
 	QuestionID			INT UNSIGNED	NOT NULL DEFAULT 0,
+	Frequency			INT UNSIGNED	NOT NULL DEFAULT 1,
 	AnswerText			TEXT		NOT NULL
 );
 
