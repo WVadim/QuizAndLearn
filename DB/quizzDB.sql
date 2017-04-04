@@ -7,16 +7,14 @@ USE quizDB;
 CREATE TABLE questions (
 	QuestionID			INT UNSIGNED 	NOT NULL AUTO_INCREMENT,
 	PRIMARY KEY (questionID),
-	QuestionText			TEXT		NOT NULL,			
+	QuestionText			TEXT		NOT NULL,
 	Difficulty			INT UNSIGNED	NOT NULL DEFAULT 0,
-	Theme				INT UNSIGNED	NOT NULL DEFAULT 0,						
-	QuestionMaker			INT UNSIGNED	NOT NULL DEFAULT 0		
+	Theme				INT UNSIGNED	NOT NULL DEFAULT 0,							QuestionMaker			INT UNSIGNED	NOT NULL DEFAULT 0
 );
 
 CREATE TABLE answers (
 	ID				INT UNSIGNED	NOT NULL AUTO_INCREMENT,
-	PRIMARY KEY (ID),		
-	#Storage of most frequent answer (taken as the correct one)
+	PRIMARY KEY (ID),			#Storage of most frequent answer (taken as the correct one)
 	QuestionID			INT UNSIGNED	NOT NULL DEFAULT 0,
 	AnswerText			TEXT		NOT NULL
 );
@@ -50,8 +48,7 @@ CREATE TABLE knowledge (
 
 CREATE TABLE resources (
 	ID				INT UNSIGNED	NOT NULL AUTO_INCREMENT,
-	PRIMARY KEY(ID),		
-#Here, we will have the course, articles, etc. that someone will need acording to his/her knowledge about theme
+	PRIMARY KEY(ID),		#Here, we will have the course, articles, etc. that someone will need acording to his/her knowledge about theme
 	ResourceSite			TEXT		NOT NULL,
 	Theme				INT UNSIGNED	NOT NULL DEFAULT 0,
 	Difficulty			INT UNSIGNED	NOT NULL DEFAULT 0
