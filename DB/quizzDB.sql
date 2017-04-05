@@ -37,8 +37,8 @@ CREATE TABLE Difficulty (
 CREATE TABLE Person (
 	ID				INT UNSIGNED	NOT NULL,
 	PRIMARY KEY (ID),
-	FirstName			TEXT		DEFAULT '',
-	SecondName			TEXT		DEFAULT '',
+	FirstName			TEXT		,
+	SecondName			TEXT		,
 	JoinData			DATETIME	NOT NULL
 );
 
@@ -53,7 +53,7 @@ CREATE TABLE Knowledge (
 CREATE TABLE Source (
 	ID				INT UNSIGNED	NOT NULL AUTO_INCREMENT,
 	PRIMARY KEY(ID),		#Here, we will have the course, articles, etc. that someone will need acording to his/her knowledge about theme
-	Website				TEXT		DEFAULT '',
+	Website				TEXT		,
 	Theme				INT UNSIGNED	NOT NULL DEFAULT 0,
 	Difficulty			INT UNSIGNED	NOT NULL DEFAULT 0
 );
