@@ -1,16 +1,22 @@
 import telebot
 from UserInterface import UIController
 #TOKEN : 351825772:AAFhmpdqSYXor4ohuX2UaqDZOLAvHUUFrqw
-token = '351825772:AAFhmpdqSYXor4ohuX2UaqDZOLAvHUUFrqw'
+token = '366896647:AAE4slt_CObEA4AQw3Fjty6rkchbAlaEDfU'
 
 bot = telebot.TeleBot(token)
 
 controller = UIController(bot, 'menu.yaml')
 
+from QuestionBotController import Controller
+ctrl = Controller()
+#ctrl.find_closest_question('')
+
+#exit(0)
+
 
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
-    global controller
+    global controller, ctrl
     controller.process_message(message)
 
 

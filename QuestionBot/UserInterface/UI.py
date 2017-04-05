@@ -1,5 +1,6 @@
 import yaml
 from MenuNode import *
+from QuestionBotController import Controller
 import networkx as nx
 
 
@@ -14,6 +15,7 @@ class UIController:
         self.dataset = yaml.load(yaml_file)
         self.position_table = self.__generate_position_table()
         self.user_state_table = {}
+        self.controller = Controller()
 
     # Restore classes from yaml file
     def __generate_position_table(self):
@@ -35,6 +37,10 @@ class UIController:
     #Main processor function
     def process_message(self, message=None, query=None):
         #Just ID extractor
+        if message is None:
+            from_user = query.from_user
+        else:
+            from_user = message.from_user
         tmessage = message
         if query is not None and message is None:
             tmessage = query.message
@@ -42,6 +48,7 @@ class UIController:
         id = tmessage.chat.id
         if id not in self.user_state_table.keys():
             self.user_state_table[id] = 0
+            self.controller.add_user(from_user)
         # Process current input from user and select new node
         self.user_state_table[id] = self.position_table[self.user_state_table[id]].process(self.bot, message, query)
         # Display this node and wait for new input

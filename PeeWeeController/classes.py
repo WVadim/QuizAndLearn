@@ -1,6 +1,6 @@
 from peewee import *
 
-database = MySQLDatabase('quizDB', **{'password': 'root', 'user': 'root'})
+database = MySQLDatabase('quizDB', **{'password': 'Falkon54', 'user': 'root'})
 
 class UnknownField(object):
     def __init__(self, *_, **__): pass
@@ -8,13 +8,6 @@ class UnknownField(object):
 class BaseModel(Model):
     class Meta:
         database = database
-
-class Difficulty(BaseModel):
-    difficulty = TextField(db_column='Difficulty')
-    id = PrimaryKeyField(db_column='ID')
-
-    class Meta:
-        db_table = 'Difficulty'
 
 class Person(BaseModel):
     firstname = TextField(db_column='FirstName', null=True)
@@ -24,6 +17,13 @@ class Person(BaseModel):
 
     class Meta:
         db_table = 'Person'
+
+class Difficulty(BaseModel):
+    difficulty = TextField(db_column='Difficulty')
+    id = PrimaryKeyField(db_column='ID')
+
+    class Meta:
+        db_table = 'Difficulty'
 
 class Theme(BaseModel):
     id = PrimaryKeyField(db_column='ID')
@@ -35,10 +35,11 @@ class Theme(BaseModel):
 
 class Question(BaseModel):
     creator = ForeignKeyField(db_column='Creator', rel_model=Person, to_field='id')
-    difficulty = ForeignKeyField(db_column='Difficulty', rel_model=Difficulty, to_field='id')
+    difficulty = ForeignKeyField(db_column='Difficulty', null=True, rel_model=Difficulty, to_field='id')
     id = PrimaryKeyField(db_column='ID')
     text = TextField(db_column='Text')
-    theme = ForeignKeyField(db_column='Theme', rel_model=Theme, to_field='id')
+    theme = ForeignKeyField(db_column='Theme', null=True, rel_model=Theme, to_field='id')
+    totalanswers = IntegerField(db_column='TotalAnswers', null=True)
 
     class Meta:
         db_table = 'Question'

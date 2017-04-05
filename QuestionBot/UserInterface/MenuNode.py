@@ -1,7 +1,7 @@
 from telebot import types
 import duckduckpy
 import numpy as np
-
+from QuestionBotController import Controller
 
 # This is an abstract class for menu item
 class MenuNodeInterface:
@@ -11,6 +11,7 @@ class MenuNodeInterface:
         self.text = init_dict['Text']
         self.inline = init_dict['Inline']
         self.probabilistic = init_dict['Probabilistic']
+        self.controller = Controller()
 
     #This is abstract function
     def display(self, tb, message=None, query=None):
@@ -90,11 +91,15 @@ class MenuNodeQuestion(MenuNodeInterface):
         if query is not None and message is None:
             message = query.message
         text = message.text
-        reply = duckduckpy.query(message.text)
-        result = u'No idea'
-        if reply.answer != u'':
-            result = reply.answer
-        tb.send_message(message.chat.id, result)
+        #reply = duckduckpy.query(message.text)
+        #result = u'No idea'
+        #if reply.answer != u'':
+        #    result = reply.answer
+        answer = self.controller.get_answer_for_question(text)
+        if answer is None:
+            answer = "I don't know, but i will figure it out"
+            self.controller.add_question(message)
+        tb.send_message(message.chat.id, answer)
         next_node = self.force_move
         if self.probabilistic:
             next_node = np.random.choice(self.probabilities.keys(), size=1, p=self.probabilities.values())[0]
@@ -131,17 +136,29 @@ class MenuNodeReply(MenuNodeInterface):
     def __init__(self, init_dict):
         MenuNodeInterface.__init__(self, init_dict)
         self.force_move = init_dict['ForceMove']
+        self.pending_questions = {}
 
     def display(self, tb, message=None, query=None):
+        if message is None:
+            from_user = query.from_user
+        else:
+            from_user = message.from_user
         if query is not None and message is None:
             message = query.message
         # We are displaying answer here
-        tb.send_message(message.chat.id, "Here it is question for you : Are you dumb?")
+        question = self.controller.get_new_question()
+        self.pending_questions[from_user.id] = question
+        tb.send_message(message.chat.id, question)
 
     def process(self, tb, message=None, query=None):
+        if message is None:
+            from_user = query.from_user
+        else:
+            from_user = message.from_user
         if query is not None and message is None:
             message = query.message
         text = message.text
+        self.controller.add_answer(text, self.pending_questions[from_user.id])
         # We are waiting for answer here
         return self.force_move
 
