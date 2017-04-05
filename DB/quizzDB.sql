@@ -35,7 +35,7 @@ CREATE TABLE Difficulty (
 );
 
 CREATE TABLE Person (
-	ID				INT UNSIGNED	NOT NULL AUTO_INCREMENT,
+	ID				INT UNSIGNED	NOT NULL,
 	PRIMARY KEY (ID),
 	FirstName			TEXT		DEFAULT '',
 	SecondName			TEXT		DEFAULT '',
@@ -43,7 +43,7 @@ CREATE TABLE Person (
 );
 
 CREATE TABLE Knowledge (
-	ID				INT UNSIGNED	NOT NULL AUTO_INCREMENT,		#Storage of the knowledge of each user in a specific theme
+	ID				INT UNSIGNED	NOT NULL AUTO_INCREMENT,	#Storage of the knowledge of each user in a specific theme
 	PRIMARY KEY(ID),
 	Person				INT UNSIGNED	NOT NULL DEFAULT 0,
 	Difficulty			INT UNSIGNED	NOT NULL DEFAULT 0,
