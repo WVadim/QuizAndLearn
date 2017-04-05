@@ -91,14 +91,15 @@ class MenuNodeQuestion(MenuNodeInterface):
         if query is not None and message is None:
             message = query.message
         text = message.text
-        #reply = duckduckpy.query(message.text)
-        #result = u'No idea'
-        #if reply.answer != u'':
-        #    result = reply.answer
         answer = self.controller.get_answer_for_question(text)
         if answer is None:
-            answer = "I don't know, but i will figure it out"
             self.controller.add_question(message)
+            reply = duckduckpy.query(text)
+            if reply.answer != u'':
+                answer = reply.answer
+                self.controller.add_answer(answer, text)
+            else:
+                answer = "I don't know, but i will figure it out"
         tb.send_message(message.chat.id, answer)
         next_node = self.force_move
         if self.probabilistic:
