@@ -1,22 +1,28 @@
 import tensorflow as tf
 from constants import *
+import math
 
 
 def __weight_variable(shape):
-  initial = tf.truncated_normal(shape, stddev=0.01)
-  return tf.Variable(initial)
+    if len(shape) == 4:
+        in_out = shape[0] * shape[1] + shape[3]
+    else:
+        in_out = shape[0] * shape[1]
+    in_out = math.sqrt(6/float(in_out))
+    initial = tf.random_uniform(shape, -in_out, in_out)
+    return tf.Variable(initial)
 
 
 def __bias_variable(shape):
-  initial = tf.truncated_normal(shape, stddev=0.01)#tf.constant(0.01, shape=shape)
-  return tf.Variable(initial)
+    initial = tf.zeros(shape)#tf.truncated_normal(shape, stddev=0.01)#tf.constant(0.01, shape=shape)
+    return tf.Variable(initial)
 
 
 def __conv(x, W, strides):
-  return tf.nn.conv2d(x, W, strides=strides, padding='VALID')
+    return tf.nn.conv2d(x, W, strides=strides, padding='VALID')
 
 def __max_pool(x, size, strides):
-  return tf.nn.max_pool(x, ksize=size,
+    return tf.nn.max_pool(x, ksize=size,
                         strides=strides, padding='VALID')
 
 
@@ -30,7 +36,7 @@ def add_layer(previous, output, n=3):
     return h_conv_rsh
 
 def __build_conv_ngram(x, n, k):
-    conv_layer = add_layer(x, k, n)
+    conv_layer = tf.nn.relu(add_layer(x, k, n))
     words_amount = int(conv_layer.shape[1])
     filters_amount = int(conv_layer.shape[2])
     #print conv_layer.shape
@@ -46,7 +52,7 @@ def build_convolutional_TW(x_input, n_arr, words=AMOUNT_OF_WORDS, w2v_dim=W2V_DI
     x = tf.reshape(x_input, [-1, words + ADDITOR, w2v_dim, 1])
     output_layers = []
     for i in n_arr:
-        new_layer = __build_conv_ngram(x, i, 50)
+        new_layer = __build_conv_ngram(x, i, 300)
         output_layers.append(new_layer)
     out = tf.concat(output_layers, 1)
     #print out.shape
@@ -55,13 +61,24 @@ def build_convolutional_TW(x_input, n_arr, words=AMOUNT_OF_WORDS, w2v_dim=W2V_DI
 def build_outter(q1, q2):
     convolution_result = tf.concat([q1, q2], 1)
     shape = int(convolution_result.shape[1])
-    W_fc1 = __weight_variable([shape, 2])
-    b_fc1 = __bias_variable([2])
 
     keep_prob = tf.placeholder(tf.float32)
+
     h_fc1_drop = tf.nn.dropout(convolution_result, keep_prob)
 
-    result = tf.nn.softmax(tf.matmul(h_fc1_drop, W_fc1) + b_fc1)
+    W_fc1 = __weight_variable([shape, shape])
+    b_fc1 = __bias_variable([shape])
+
+    result_tanh = tf.nn.tanh(tf.matmul(h_fc1_drop, W_fc1) + b_fc1)
+
+    h_fc2_drop = tf.nn.dropout(result_tanh, keep_prob)
+
+    shape = int(convolution_result.shape[1])
+
+    W_fc2 = __weight_variable([shape, 2])
+    b_fc2 = __bias_variable([2])
+
+    result = tf.nn.softmax(tf.matmul(h_fc2_drop, W_fc2) + b_fc2)
 
     return result, keep_prob
 
