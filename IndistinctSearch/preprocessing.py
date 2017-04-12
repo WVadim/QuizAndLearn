@@ -5,7 +5,10 @@ import pandas as pd
 from nltk.stem.snowball import SnowballStemmer
 from nltk.corpus import stopwords
 from gensim.models.keyedvectors import KeyedVectors
-from nltk.tokenize import wordpunct_tokenize
+from nltk.tokenize import wordpunct_tokenize, word_tokenize
+import progressbar as pb
+from nltk.tag import pos_tag
+
 
 START_TOKEN='&&START&&'
 END_TOKEN = '&&END&&'
@@ -18,8 +21,8 @@ def __cleantxt(x):    # aangeven sentence
     # Removing non ASCII chars
     #x = x.replace(r'[^\x00-\x7f]',r' ')
     # Pad punctuation with spaces on both sides
-    #for char in ['.', '"', ',', '(', ')', '!', '?', ';', ':']:
-    #    x = x.replace(char, '')
+    for char in ['.', '"', ',', '(', ')', '!', '?', ';', ':']:
+        x = x.replace(char, ' ' + char + ' ')
     return x#.encode('utf-8')
 
 def __train_w2v(dataset, dim=W2V_DIM, save=False, load=False, w2v_model=None):
@@ -27,13 +30,15 @@ def __train_w2v(dataset, dim=W2V_DIM, save=False, load=False, w2v_model=None):
         if w2v_model is not None:
             return w2v_model
         else:
-            model = KeyedVectors.load_word2vec_format('GoogleNews-vectors-negative300.bin', binary=True)
+            model = word2vec.Word2Vec.load('en_1000_no_stem/en.model')
             return model
+            #model = KeyedVectors.load_word2vec_format('GoogleNews-vectors-negative300.bin', binary=True)
+            #return model
     else:
         vocab = [wordpunct_tokenize(s) for s in dataset]
         if w2v_model is None:
             model = word2vec.Word2Vec(vocab, size=dim, batch_words=1, min_count=2, workers=8, null_word=1)
-            model = model.wv
+            #model = model.wv
         else:
             return w2v_model
         if save:
@@ -56,7 +61,7 @@ def __wrap_question(row, qname, words_size=AMOUNT_OF_WORDS):
 def __make_question_dataset(question, w2v_model):
     numerical = None
     appendix = []
-    null_word = w2v_model[w2v_model.index2word[0]]
+    null_word = w2v_model[w2v_model.wv.index2word[w2v_model.null_word]]
     unknown_word = null_word#np.random.normal(0, 0.01, len(null_word))
     for item in question:
         try:
@@ -82,8 +87,8 @@ def __make_question_dataset(question, w2v_model):
 
 
 def __build_data_row(row, w2v_model, no_answer):
-    q1_dataset = __wrap_question(row, 'question1')
-    q2_dataset = __wrap_question(row, 'question2')
+    q1_dataset = get_nnp_repr(row['question1'].tolist()[0])#__wrap_question(row, 'question1')
+    q2_dataset = get_nnp_repr(row['question2'].tolist()[0])#__wrap_question(row, 'question2')
     q1_num = __make_question_dataset(q1_dataset, w2v_model)
     q2_num = __make_question_dataset(q2_dataset, w2v_model)
     duplicate_val = [0, 0]
@@ -116,8 +121,8 @@ def map_dataset(dataset, log=True):
     dataset['question2'] = dataset['question2'].map(__cleantxt)
     if log:
         print 'Stemming...'
-    dataset['question1'] = dataset['question1'].map(__steem_string)
-    dataset['question2'] = dataset['question2'].map(__steem_string)
+    #dataset['question1'] = dataset['question1'].map(__steem_string)
+    #dataset['question2'] = dataset['question2'].map(__steem_string)
     return dataset
 
 def static_var(varname, value):
@@ -126,8 +131,26 @@ def static_var(varname, value):
         return func
     return decorate
 
+def get_nnp_repr(string):
+    return [item[0] + item[1] for item in pos_tag(word_tokenize(string.decode('utf-8'), 'english')) if item[1] != '.']
+
+def find_nnp(dataset):
+    questions = dataset['question1'].tolist() + dataset['question2'].tolist()
+    dictionary = [''] * len(questions)
+    print 'Tokenizing dictionary...'
+    bar = pb.ProgressBar()
+    for i in bar(range(len(questions))):
+        try:
+            dictionary[i] = [item[0] + item[1] for item in
+                             pos_tag(word_tokenize(questions[i].decode('utf-8'), 'english')) if item[1] != '.']
+        except TypeError:
+            print questions[i]
+            exit(0)
+    return dictionary
+
+
 @static_var('w2v_model', None)
-def build_dataset(sample_high, sample_low=None, path='train.csv', log=True, no_answer=False):
+def build_dataset(sample_high, sample_low=None, path='train.csv', log=True, no_answer=False, sampling=False):
     if log:
         import logging
         import os
@@ -141,24 +164,28 @@ def build_dataset(sample_high, sample_low=None, path='train.csv', log=True, no_a
             logging.root.setLevel(level=logging.INFO)
 
     datas = pd.read_csv(path)
-    if sample_low is None:
-        sample_low = 0
-    if sample_high is not None:
-        sample_high = min(sample_high, len(datas))
-        datas = datas[sample_low:sample_high]
+    total = len(datas)
+    if sampling:
+        datas = datas.sample(sample_high)
     else:
-        datas = datas[sample_low:]
+        if sample_low is None:
+            sample_low = 0
+        if sample_high is not None:
+            sample_high = min(sample_high, len(datas))
+            datas = datas[sample_low:sample_high]
+        else:
+            datas = datas[sample_low:]
     if not no_answer:
         zeroes = datas[datas['is_duplicate'] == 0]
     print 'Loading dataset sized :', datas.shape
-    datas = map_dataset(datas, log)
-    q1_list = datas['question1'].tolist()
-    q2_list = datas['question2'].tolist()
+    #datas = map_dataset(datas, log)
+    #q1_list = datas['question1'].tolist()
+    #q2_list = datas['question2'].tolist()
 
     #datas_test = pd.read_csv('test.csv')
     #datas_test = map_dataset(datas_test)
-
-    dataset = q1_list + q2_list
+    q_dataset = datas[['question1', 'question2']]
+    dataset = find_nnp(q_dataset)#q1_list + q2_list
 
     if log:
         print 'Training w2v...'
@@ -168,4 +195,4 @@ def build_dataset(sample_high, sample_low=None, path='train.csv', log=True, no_a
 
     if log:
         print 'Building dataset...'
-    return __build_total_data(datas, build_dataset.w2v_model, no_answer)
+    return __build_total_data(datas, build_dataset.w2v_model, no_answer), total

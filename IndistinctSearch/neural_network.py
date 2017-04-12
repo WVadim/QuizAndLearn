@@ -7,7 +7,7 @@ def __weight_variable(shape):
     if len(shape) == 4:
         in_out = shape[0] * shape[1] + shape[3]
     else:
-        in_out = shape[0] * shape[1]
+        in_out = shape[0] + shape[1]
     in_out = math.sqrt(6/float(in_out))
     initial = tf.random_uniform(shape, -in_out, in_out)
     return tf.Variable(initial)
@@ -36,7 +36,7 @@ def add_layer(previous, output, n=3):
     return h_conv_rsh
 
 def __build_conv_ngram(x, n, k):
-    conv_layer = tf.nn.relu(add_layer(x, k, n))
+    conv_layer = add_layer(x, k, n)
     words_amount = int(conv_layer.shape[1])
     filters_amount = int(conv_layer.shape[2])
     #print conv_layer.shape
@@ -52,7 +52,7 @@ def build_convolutional_TW(x_input, n_arr, words=AMOUNT_OF_WORDS, w2v_dim=W2V_DI
     x = tf.reshape(x_input, [-1, words + ADDITOR, w2v_dim, 1])
     output_layers = []
     for i in n_arr:
-        new_layer = __build_conv_ngram(x, i, 300)
+        new_layer = __build_conv_ngram(x, i, w2v_dim)
         output_layers.append(new_layer)
     out = tf.concat(output_layers, 1)
     #print out.shape
@@ -138,7 +138,7 @@ def build_network(question1, question2, words=AMOUNT_OF_WORDS, w2v_dim=W2V_DIM):
 
 
 def build_network_ZW(question1, question2, words=AMOUNT_OF_WORDS, w2v_dim=W2V_DIM):
-    n_grams = range(2, 5)
+    n_grams = range(2, 6)
     q1_convolution = build_convolutional_TW(question1, n_grams, words, w2v_dim)
     q2_convolution = build_convolutional_TW(question2, n_grams, words, w2v_dim)
     return build_outter(q1_convolution, q2_convolution)
