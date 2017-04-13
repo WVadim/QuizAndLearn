@@ -70,3 +70,16 @@ for epoch in range(epochs):
         sess.run(train_step,
                  feed_dict={x_q1: batch_x1, x_q2: batch_x2, y: batch_y, keep_prob: 1})
     preprocessor.reshuffle(seed + epoch * 2)
+
+import csv
+test_dataset = Preprocessor('test.csv', include_answer=False)
+output_file = open('submission.csv', 'w')
+writer = csv.writer(output_file)
+counter = 0
+for batch_x1, batch_x2, batch_y in test_dataset.iterate_batches(batch_size):
+    data = sess.run(y_conv, feed_dict={x_q1: batch_x1, x_q2: batch_x2, y: batch_y, keep_prob: 1})
+    for item in data:
+        row = [counter, item[1]]
+        writer.writerow(row)
+        counter += 1
+    print '%d test data observed, total %d' % (counter, test_dataset.size())
