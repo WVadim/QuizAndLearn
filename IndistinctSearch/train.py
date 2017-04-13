@@ -9,10 +9,13 @@ learning_rate = 1e-4
 
 seed = 543
 tf.set_random_seed(seed)
-network_builder = NeuralNetwork(range(2, 6), seed=seed)
+network_builder = NeuralNetwork(range(2, 6), seed=seed, relu=False, tanh=False)
 dataset_name = 'train.csv'
 
-preprocessor = Preprocessor(dataset_name, seed=seed)
+gather = False
+only_gather = True
+
+preprocessor = Preprocessor(dataset_name, seed=seed, gather=gather)
 
 x_q1 = tf.placeholder(tf.float32, [None, (AMOUNT_OF_WORDS + ADDITOR) * W2V_DIM])
 x_q2 = tf.placeholder(tf.float32, [None, (AMOUNT_OF_WORDS + ADDITOR) * W2V_DIM])
@@ -34,7 +37,7 @@ print 'Done'
 
 epochs = 100
 batch_size = 50
-print_freq = 100
+print_freq = 1000
 
 total_size = preprocessor.size()
 
@@ -46,11 +49,24 @@ for epoch in range(epochs):
     counter = 0
     for batch_x1, batch_x2, batch_y in preprocessor.iterate_batches(batch_size):
         counter += 1
-        if counter % print_freq == 0:
+        if (counter * batch_size) % print_freq == 0:
             feed_dict = {x_q1: x1_test, x_q2: x2_test, y: y_test, keep_prob: 1}
+            if gather:
+                avg_model = float(np.mean(preprocessor.statistics['MODEL']))
+                avg_stop = float(np.mean(preprocessor.statistics['STOP']))
+                avg_diff = float(np.mean(preprocessor.statistics['ADD']))
+                avg_neg = float(np.mean(preprocessor.statistics['NEG']))
+                len_neg = float(len(preprocessor.statistics['NEG'])) / (2 * counter * batch_size)
+                len_emp = float(len(preprocessor.statistics['EMP'])) / (2 * counter * batch_size)
+                print('Data observer : %.4f%% Model Drop : %.2f%% Stopwords found : %.5f Sentence len : %.5f Longer : %.2f%% Empty : %.2f%%' %
+                  ((1 + epoch) * 100 * float(counter * batch_size)/total_size,
+                   100 * avg_model, avg_stop, avg_diff, 100 * len_neg, len_emp))
+                if only_gather:
+                    continue
             train_accuracy = sess.run(accuracy, feed_dict=feed_dict)
             loss_val = sess.run(cross_entropy, feed_dict=feed_dict)
             print('epoch %d data observed %.2f%%, measured accuracy %g, training loss %g' %
                   (epoch, (1 + epoch) * 100 * float(counter * batch_size)/total_size, train_accuracy, loss_val))
         sess.run(train_step,
                  feed_dict={x_q1: batch_x1, x_q2: batch_x2, y: batch_y, keep_prob: 1})
+    preprocessor.reshuffle(seed + epoch * 2)

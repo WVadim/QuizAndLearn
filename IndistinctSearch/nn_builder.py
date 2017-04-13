@@ -66,24 +66,24 @@ class NeuralNetwork:
 
     def build_outter(self, q1, q2):
         convolution_result = tf.concat([q1, q2], 1)
-        shape = int(convolution_result.shape[1])
-
+        shape_in = int(convolution_result.shape[1])
+        shape_out = shape_in
         keep_prob = tf.placeholder(tf.float32)
 
         if self.tanh:
-
+            shape_out /= 2
             h_fc1_drop = tf.nn.dropout(convolution_result, keep_prob)
 
-            W_fc1 = NeuralNetwork.__weight_variable([shape, shape])
-            b_fc1 = NeuralNetwork.__bias_variable([shape])
+            W_fc1 = NeuralNetwork.__weight_variable([shape_in, shape_out])
+            b_fc1 = NeuralNetwork.__bias_variable([shape_out])
 
             convolution_result = tf.nn.tanh(tf.matmul(h_fc1_drop, W_fc1) + b_fc1)
 
         h_fc2_drop = tf.nn.dropout(convolution_result, keep_prob)
 
-        shape = int(convolution_result.shape[1])
+        #shape = int(convolution_result.shape[1])
 
-        W_fc2 = NeuralNetwork.__weight_variable([shape, 2])
+        W_fc2 = NeuralNetwork.__weight_variable([shape_out, 2])
         b_fc2 = NeuralNetwork.__bias_variable([2])
 
         result = tf.nn.softmax(tf.matmul(h_fc2_drop, W_fc2) + b_fc2)
