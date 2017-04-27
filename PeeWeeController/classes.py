@@ -9,6 +9,13 @@ class BaseModel(Model):
     class Meta:
         database = database
 
+class Difficulty(BaseModel):
+    difficulty = TextField(db_column='Difficulty')
+    id = PrimaryKeyField(db_column='ID')
+
+    class Meta:
+        db_table = 'Difficulty'
+
 class Person(BaseModel):
     firstname = TextField(db_column='FirstName', null=True)
     id = PrimaryKeyField(db_column='ID')
@@ -17,13 +24,6 @@ class Person(BaseModel):
 
     class Meta:
         db_table = 'Person'
-
-class Difficulty(BaseModel):
-    difficulty = TextField(db_column='Difficulty')
-    id = PrimaryKeyField(db_column='ID')
-
-    class Meta:
-        db_table = 'Difficulty'
 
 class Theme(BaseModel):
     id = PrimaryKeyField(db_column='ID')
@@ -70,4 +70,3 @@ class Source(BaseModel):
 
     class Meta:
         db_table = 'Source'
-
