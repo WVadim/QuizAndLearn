@@ -143,3 +143,18 @@ matches = [item[0] for item in DBInterace.GetMatchAnswers(question.id, answer_te
 for item in matches:
     print 'Matching answer for question', question.text, 'is', item.text
 
+
+# How long is meter?
+text = u'How long is meter?'
+list_of_question = DBInterace.GetMatchQuestions(text)
+
+if list_of_question == []:
+    #create auestion
+    pass
+else:
+    best_match = list_of_question[0]
+    id_of_best_match = best_match.id
+    answers = DBInterace.GetAnswer(id=id_of_best_match)
+    answers = sorted(answers, key=lambda x : x.frequency, reverse=True)
+    best_answer = answers[0]
+

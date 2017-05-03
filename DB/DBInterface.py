@@ -1,12 +1,41 @@
 import peewee
 from PeeWeeController import *
 from IndistinctSearch.QuestionComparator import egoistic_comparator
+import numpy as np
+
 
 class DBInterace:
 
     # Class should not be instancieated
     def __init__(self):
         assert False
+
+    def GetQuizAnswers(self, question, amount_of_answers=4):
+        correct_answers = DBInterace.GetAnswer(question=question.id)
+        if len(correct_answers) == 0:
+            return [(None, None)]
+        correct_answers = sorted(correct_answers, key=lambda x: x.frequency, reverse=True)
+        result = [(correct_answers[0], True)]
+        if amount_of_answers == 1:
+            return result
+        random_answers = DBInterace.GetAnswer()
+        random_answers = [item for item in random_answers if item.text != result[0][0].text]
+        real_len = min(amount_of_answers, len(random_answers))
+        random_answers = np.random.choice(random_answers, real_len, replace=False)
+        for item in random_answers:
+            result.append((item, False))
+        return result
+
+    @staticmethod
+    def GetUnknownQuestions(difficulty=None, theme=None, minimum_answers=1):
+        all_questions = DBInterace.GetQuestion(theme=theme, difficulty=difficulty)
+        final = []
+        for question in all_questions:
+            answer_list = DBInterace.GetAnswer(question=question.id)
+            acc_freq = sum([item.freqency for item in answer_list])
+            if acc_freq < minimum_answers:
+                final.append(question)
+        return final
 
     @staticmethod
     def s_CreateAnswer(question, text=u'', answer_comparator=egoistic_comparator, threshold=0.5):
