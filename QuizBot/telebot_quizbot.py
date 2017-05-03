@@ -178,7 +178,7 @@ def check_answer(message):
         if state_theme:
             difficulty = message.text
             # Getting themes from connector
-            themes = getThemes()
+            themes = DBInterace.GetTheme()
             # We have to predefine the number of themes by default
 
             markup = types.ReplyKeyboardMarkup()
@@ -197,7 +197,7 @@ def check_answer(message):
 
         else:
             if state_asking:
-                # do here the get mathing question thing
+                # do here the get matching question thing
                 # give the correct answer to the user
                 markup = types.ReplyKeyboardRemove(selective=False)
                 bot.reply_to(message, u'I am giving you an answer', reply_markup=markup)
