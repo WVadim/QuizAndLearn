@@ -6,7 +6,7 @@ Created on Mon Mar 27 18:32:13 2017
 """
 import telebot
 from telebot import types
-from connector_quizbot import *
+from DBInterface import *
 
 bot = telebot.TeleBot("335396227:AAEJ5MWykURPRRFTMNso2NFT90o6Jn93bz8")
 state_requested = None
@@ -19,6 +19,7 @@ answers = []
 questions = []
 cont = 0
 correct = 0
+correct_answer = ''
 
 
 @bot.message_handler(commands=[u'start', u'help'])
@@ -40,7 +41,7 @@ def pull(message):
     bot.send_message(message.chat.id, u'You have requested to get quiz answers')
     # Connecting to the database
     # Get difficulties from connector
-    difficulties = getDifficulties()
+    difficulties = DBInterace.GetDifficulty()
     # We have to predefine the number of difficulties
     markup = types.ReplyKeyboardMarkup()
     itembtnone = types.KeyboardButton(difficulties[0])
@@ -66,6 +67,8 @@ def check_answer(message):
     global cont
     global correct
 
+    global correct_answer
+
     if (state_requested):
         if (state_answering != True):
             cont = 0
@@ -74,14 +77,20 @@ def check_answer(message):
             # Get random questions of Geography from the connector according to the theme
             # print(theme)
             # print(difficulty)
-            questions = getQuestions(theme, difficulty)
+            #here we have to place the method to get questions of a certain theme and difficulty
+            #questions = getQuestions(theme, difficulty)
             # Send the first question
 
             if questions:
                 q = questions[cont]
 
                 # Query to the connector to get the options to that question
-                opts = getAnswers(q)
+                opts = DBInterace.getAnswer(question=q)
+                #sort the answers by frequency
+                #choose the first, that one is the correct
+                #get randomly other 3
+                #update opts to send them to the user
+                #correct_answer=   - save here the correct one
 
                 bot.send_message(message.chat.id, u'Question ' + str(cont + 1))
                 bot.send_message(message.chat.id, q)
@@ -108,7 +117,7 @@ def check_answer(message):
         else:
             q = questions[cont]
             if cont < questions.__len__() - 1:
-                if checkAnswer(message.text, q):
+                if correct_answer == message.text:
                     bot.send_message(message.chat.id, u'Correct!')
                     correct = correct + 1
                 else:
@@ -120,7 +129,12 @@ def check_answer(message):
                 q = questions[cont]
 
                 # Query to the connector to get the options to that question
-                opts = getAnswers(q)
+                opts = DBInterace.getAnswer(question=q)
+                # sort the answers by frequency
+                # choose the first, that one is the correct
+                # get randomly other 3
+                # update opts to send them to the user
+                # correct_answer=   - save here the correct one
 
                 bot.send_message(message.chat.id, u'Question ' + str(cont + 1))
                 bot.send_message(message.chat.id, q)
@@ -135,7 +149,7 @@ def check_answer(message):
 
 
             else:
-                if (checkAnswer(message.text, q)):
+                if correct_answer == message.text:
                     bot.send_message(message.chat.id, u'Correct!')
                     correct = correct + 1
                 else:
