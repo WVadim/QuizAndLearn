@@ -12,6 +12,7 @@ bot = telebot.TeleBot("335396227:AAEJ5MWykURPRRFTMNso2NFT90o6Jn93bz8")
 state_requested = None
 state_answering = None
 state_theme = None
+state_asking = None
 difficulty = ''
 theme = ''
 answers = []
@@ -23,7 +24,13 @@ correct = 0
 @bot.message_handler(commands=[u'start', u'help'])
 def send_welcome(message):
     bot.send_message(message.chat.id, u'I\'m a bot, please talk to me!')
+    #meter aqui instrucciones del bot
 
+@bot.message_handler(commands=[u'push'])
+def push(message):
+    global state_asking
+    bot.send_message(message.chat.id, u'Ask me whatever you want and I will try to answer it!')
+    state_asking=True
 
 @bot.message_handler(commands=[u'pull'])
 def pull(message):
@@ -61,6 +68,8 @@ def check_answer(message):
 
     if (state_requested):
         if (state_answering != True):
+            cont = 0
+            correct = 0
             theme = message.text
             # Get random questions of Geography from the connector according to the theme
             # print(theme)
@@ -144,6 +153,10 @@ def check_answer(message):
                 bot.send_message(message.chat.id,
                                  u'You have answered the ' + str(percentage) + u'% of the answers correctly',
                                  reply_markup=markup)
+
+                #here once you have estimated the user knowledge, save it to the db?
+                #send to the user a course link according to the knowledge
+
                 state_requested = False
                 state_theme = False
 
@@ -166,10 +179,18 @@ def check_answer(message):
             bot.send_message(message.chat.id, u'Choose a theme:', reply_markup=markup)
             state_requested = True
             cont = 0
+
+
         else:
-            markup = types.ReplyKeyboardRemove(selective=False)
-            state_theme = False
-            bot.reply_to(message, u'Request more questions to answer!', reply_markup=markup)
+            if state_asking:
+                # do here the get mathing question thing
+                # give the correct answer to the user
+                markup = types.ReplyKeyboardRemove(selective=False)
+                bot.reply_to(message, u'I am giving you an answer', reply_markup=markup)
+            else:
+                markup = types.ReplyKeyboardRemove(selective=False)
+                state_theme = False
+                bot.reply_to(message, u'Request more questions to answer!', reply_markup=markup)
 
 
 bot.polling()
