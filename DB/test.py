@@ -142,3 +142,4 @@ DBInterace.UpdateAnswer(answer.id, answer.frequency + 1)
 matches = [item[0] for item in DBInterace.GetMatchAnswers(question.id, answer_text)]
 for item in matches:
     print 'Matching answer for question', question.text, 'is', item.text
+

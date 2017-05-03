@@ -21,7 +21,7 @@ class DBInterace:
         all_answers = DBInterace.GetAnswer(question=question)
         match_answers = [(item, answer_comparator(item.text, text)) for item in all_answers
                          if answer_comparator(item.text, text) <= threshold]
-        return match_answers
+        return sorted(match_answers, key=lambda x: x[1])
 
     @staticmethod
     def s_CreateQuestion(text=u'', difficulty=None, theme=None, creator=0,
@@ -45,9 +45,10 @@ class DBInterace:
     def GetMatchQuestions(source_question_text, question_comparator=egoistic_comparator,
                           threshold=0.5, theme=None, difficulty=None):
         all_questions = DBInterace.GetQuestion(theme=theme, difficulty=difficulty)
-        match_questions = [(item, question_comparator(item.text, source_question_text)) for item in all_questions
+        match_questions = [(item, question_comparator(item.text, source_question_text))
+                           for item in all_questions
                            if question_comparator(item.text, source_question_text) <= threshold]
-        return match_questions
+        return sorted(match_questions, key=lambda x: x[1])
 
     # Method is checking if specified user knows all themes with specified difficulty (or without it if it is None)
     @staticmethod
