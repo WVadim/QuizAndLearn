@@ -6,9 +6,9 @@ Created on Mon Mar 27 18:32:13 2017
 """
 import telebot
 from telebot import types
-from DBInterface import *
+from DB.DBInterface import *
 
-bot = telebot.TeleBot("335396227:AAEJ5MWykURPRRFTMNso2NFT90o6Jn93bz8")
+bot = telebot.TeleBot("349235321:AAEfEdcrb7mGmJmSXwhK7u-2pLmX6_WgGL8")
 state_requested = None
 state_answering = None
 state_theme = None
@@ -20,6 +20,7 @@ questions = []
 cont = 0
 correct = 0
 correct_answer = ''
+index_themes = 0
 
 
 @bot.message_handler(commands=[u'start', u'help'])
@@ -33,20 +34,24 @@ def push(message):
     bot.send_message(message.chat.id, u'Ask me whatever you want and I will try to answer it!')
     state_asking=True
 
-@bot.message_handler(commands=[u'pull'])
+@bot.message_handler(commands=[u'quiz'])
 def pull(message):
     global state_requested
+    global state_answering
     global cont
     global state_theme
+    global index_themes
+    index_themes=0
     bot.send_message(message.chat.id, u'You have requested to get quiz answers')
     # Connecting to the database
     # Get difficulties from connector
     difficulties = DBInterace.GetDifficulty()
+    #print difficulties[1].difficulty
     # We have to predefine the number of difficulties
     markup = types.ReplyKeyboardMarkup()
-    itembtnone = types.KeyboardButton(difficulties[0])
-    itembtntwo = types.KeyboardButton(difficulties[1])
-    itembtnthree = types.KeyboardButton(difficulties[2])
+    itembtnone = types.KeyboardButton(difficulties[1].difficulty)
+    itembtntwo = types.KeyboardButton(difficulties[2].difficulty)
+    itembtnthree = types.KeyboardButton(difficulties[3].difficulty)
     markup.row(itembtnone, itembtntwo)
     markup.row(itembtnthree)
     bot.send_message(message.chat.id, u'Choose a difficulty:', reply_markup=markup)
@@ -58,6 +63,7 @@ def check_answer(message):
     global state_requested
     global state_answering
     global state_theme
+    global next
 
     global difficulty
     global theme
@@ -69,10 +75,18 @@ def check_answer(message):
 
     global correct_answer
 
+    global index_themes
+
+    if(message.text==u'-NEXT-'):
+        #Set states to enter again into the theme selection
+        state_requested = False
+
+
     if (state_requested):
         if (state_answering != True):
             cont = 0
             correct = 0
+
             theme = message.text
             # Get random questions of Geography from the connector according to the theme
             # print(theme)
@@ -179,17 +193,25 @@ def check_answer(message):
             difficulty = message.text
             # Getting themes from connector
             themes = DBInterace.GetTheme()
-            # We have to predefine the number of themes by default
 
+            # We have to predefine the number of themes by default
+            buttons = [item.label for item in themes]
+
+            final_button = u'-NEXT-' if len(buttons)-1 > index_themes + 5 else u'-END-'
+            print final_button
             markup = types.ReplyKeyboardMarkup()
-            itembtnone = types.KeyboardButton(themes[0])
-            itembtntwo = types.KeyboardButton(themes[1])
-            itembtnthree = types.KeyboardButton(themes[2])
-            itembtnfour = types.KeyboardButton(themes[3])
-            itembtnfive = types.KeyboardButton(themes[4])
-            itembtnsix = types.KeyboardButton(themes[5])
+            itembtnone = types.KeyboardButton(buttons[index_themes+1])
+            itembtntwo = types.KeyboardButton(buttons[index_themes+2])
+            itembtnthree = types.KeyboardButton(buttons[index_themes+3])
+            itembtnfour = types.KeyboardButton(buttons[index_themes+4])
+            itembtnfive = types.KeyboardButton(buttons[index_themes+5])
+            itembtnsix = types.KeyboardButton(final_button)
             markup.row(itembtnone, itembtntwo, itembtnthree)
             markup.row(itembtnfour, itembtnfive, itembtnsix)
+
+            index_themes=index_themes+5 if len(buttons)>index_themes+10 else len(buttons)-6
+
+
             bot.send_message(message.chat.id, u'Choose a theme:', reply_markup=markup)
             state_requested = True
             cont = 0
