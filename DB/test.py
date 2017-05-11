@@ -167,6 +167,18 @@ DBInterace.CreateSource(id=None,difficulty=3,theme=3,website=u'https://es.course
 DBInterace.CreateSource(id=None,difficulty=1,theme=5,website=u'https://es.coursera.org/learn/art-activity')
 DBInterace.CreateSource(id=None,difficulty=2,theme=5,website=u'https://es.coursera.org/learn/art-activity')
 DBInterace.CreateSource(id=None,difficulty=3,theme=5,website=u'https://es.coursera.org/learn/art-activity')
+DBInterace.CreateSource(difficulty=1,theme=6,website=u'https://es.coursera.org/learn/international-entertainment-sports-marketing')
+DBInterace.CreateSource(difficulty=2,theme=6,website=u'https://es.coursera.org/learn/international-entertainment-sports-marketing')
+DBInterace.CreateSource(difficulty=3,theme=6,website=u'https://es.coursera.org/learn/international-entertainment-sports-marketing')
+DBInterace.CreateSource(difficulty=1,theme=7,website=u'https://es.coursera.org/learn/bighistory')
+DBInterace.CreateSource(difficulty=2,theme=7,website=u'https://es.coursera.org/learn/bighistory')
+DBInterace.CreateSource(difficulty=3,theme=7,website=u'https://es.coursera.org/learn/bighistory')
+DBInterace.CreateSource(difficulty=1,theme=8,website=u'https://es.coursera.org/learn/astronomy-technology')
+DBInterace.CreateSource(difficulty=2,theme=8,website=u'https://es.coursera.org/learn/astronomy-technology')
+DBInterace.CreateSource(difficulty=3,theme=8,website=u'https://es.coursera.org/learn/astronomy-technology')
+DBInterace.CreateSource(difficulty=1,theme=9,website=u'https://www.cursos-academicos.com/Programma-de-coaching-deportivo/Espana/La-Salle-International-Graduate-School-IGS')
+DBInterace.CreateSource(difficulty=2,theme=9,website=u'https://www.cursos-academicos.com/Programma-de-coaching-deportivo/Espana/La-Salle-International-Graduate-School-IGS')
+DBInterace.CreateSource(difficulty=3,theme=9,website=u'https://www.cursos-academicos.com/Programma-de-coaching-deportivo/Espana/La-Salle-International-Graduate-School-IGS')
 
 
 
