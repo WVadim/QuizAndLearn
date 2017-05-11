@@ -7,8 +7,10 @@ Created on Mon Mar 27 18:32:13 2017
 import telebot
 from telebot import types
 from DB.DBInterface import *
+import random
+import numpy as np
 
-bot = telebot.TeleBot("349235321:AAEfEdcrb7mGmJmSXwhK7u-2pLmX6_WgGL8")
+bot = telebot.TeleBot("335396227:AAEJ5MWykURPRRFTMNso2NFT90o6Jn93bz8")
 state_requested = None
 state_answering = None
 state_theme = None
@@ -17,6 +19,12 @@ difficulty = ''
 theme = ''
 answers = []
 questions = []
+answers_user=[]
+answers_factor=[]
+
+percentage_options=0.6
+cut_index=0
+
 cont = 0
 correct = 0
 correct_answer = ''
@@ -25,8 +33,7 @@ index_themes = 0
 
 @bot.message_handler(commands=[u'start', u'help'])
 def send_welcome(message):
-    bot.send_message(message.chat.id, u'I\'m a bot, please talk to me!')
-    #meter aqui instrucciones del bot
+    bot.send_message(message.chat.id, u'Welcome to quizBot. Use /push to ask a question and /quiz to request questions from me')
 
 @bot.message_handler(commands=[u'push'])
 def push(message):
@@ -41,6 +48,16 @@ def pull(message):
     global cont
     global state_theme
     global index_themes
+    global answers_user
+    global answers_factor
+
+
+
+    cont=0
+    answers_user=[]
+    answers_factor=[]
+
+
     index_themes=0
     bot.send_message(message.chat.id, u'You have requested to get quiz answers')
     # Connecting to the database
@@ -49,9 +66,9 @@ def pull(message):
     #print difficulties[1].difficulty
     # We have to predefine the number of difficulties
     markup = types.ReplyKeyboardMarkup()
-    itembtnone = types.KeyboardButton(difficulties[1].difficulty)
-    itembtntwo = types.KeyboardButton(difficulties[2].difficulty)
-    itembtnthree = types.KeyboardButton(difficulties[3].difficulty)
+    itembtnone = types.KeyboardButton(difficulties[0].difficulty)
+    itembtntwo = types.KeyboardButton(difficulties[1].difficulty)
+    itembtnthree = types.KeyboardButton(difficulties[2].difficulty)
     markup.row(itembtnone, itembtntwo)
     markup.row(itembtnthree)
     bot.send_message(message.chat.id, u'Choose a difficulty:', reply_markup=markup)
@@ -75,7 +92,14 @@ def check_answer(message):
 
     global correct_answer
 
+    global answers_factor
+    global answers_user
+
     global index_themes
+
+    global percentage_options
+
+    global cut_index
 
     if(message.text==u'-NEXT-'):
         #Set states to enter again into the theme selection
@@ -83,6 +107,7 @@ def check_answer(message):
 
 
     if (state_requested):
+
         if (state_answering != True):
             cont = 0
             correct = 0
@@ -93,26 +118,47 @@ def check_answer(message):
             # print(difficulty)
             #here we have to place the method to get questions of a certain theme and difficulty
             #questions = getQuestions(theme, difficulty)
+            dif = DBInterace.GetDifficultyByLabel(difficulty);
+            th = DBInterace.GetThemeByLabelAndParent(theme, 0);
+            questions = DBInterace.GetUnknownQuestions(difficulty=dif, theme=th.id);
+
+            if (len(questions)>10):
+                questions=questions[0:10]
+
+            print(len(questions))
+
+            #Caulculate the cut_index
+            cut_index=round(percentage_options*len(questions))
+
+            print(cut_index)
+
             # Send the first question
 
             if questions:
-                q = questions[cont]
+                q = questions[cont].text
 
                 # Query to the connector to get the options to that question
-                opts = DBInterace.getAnswer(question=q)
+                answer = DBInterace.GetAnswer(question=questions[cont].id)
+
+                opts = DBInterace.GetQuizAnswers(question=questions[cont])
+                answers=[opts[0][0].text,opts[1][0].text,opts[2][0].text,opts[3][0].text]
+                random.shuffle(answers)
+
+
                 #sort the answers by frequency
                 #choose the first, that one is the correct
                 #get randomly other 3
                 #update opts to send them to the user
-                #correct_answer=   - save here the correct one
+                correct_answer= opts[0][0].text
 
                 bot.send_message(message.chat.id, u'Question ' + str(cont + 1))
                 bot.send_message(message.chat.id, q)
                 markup = types.ReplyKeyboardMarkup()
-                itembtnone = types.KeyboardButton(opts[0])
-                itembtntwo = types.KeyboardButton(opts[1])
-                itembtnthree = types.KeyboardButton(opts[2])
-                itembtnfour = types.KeyboardButton(opts[3])
+
+                itembtnone = types.KeyboardButton(answers[0])
+                itembtntwo = types.KeyboardButton(answers[1])
+                itembtnthree = types.KeyboardButton(answers[2])
+                itembtnfour = types.KeyboardButton(answers[3])
                 markup.row(itembtnone, itembtntwo)
                 markup.row(itembtnthree, itembtnfour)
                 bot.send_message(message.chat.id, u'Choose one option:', reply_markup=markup)
@@ -129,57 +175,82 @@ def check_answer(message):
 
 
         else:
-            q = questions[cont]
+            q = questions[cont].text
             if cont < questions.__len__() - 1:
                 if correct_answer == message.text:
                     bot.send_message(message.chat.id, u'Correct!')
                     correct = correct + 1
+                    answers_user.append(1)
+
                 else:
                     bot.send_message(message.chat.id, u'Incorrect!')
+                    answers_user.append(0)
 
+                answers_factor.append(0.5) if cont < cut_index else answers_factor.append(1.5)
                 cont = cont + 1
                 # print cont
                 # next question
-                q = questions[cont]
+                q = questions[cont].text
 
                 # Query to the connector to get the options to that question
-                opts = DBInterace.getAnswer(question=q)
+                opts = DBInterace.GetQuizAnswers(question=questions[cont])
                 # sort the answers by frequency
                 # choose the first, that one is the correct
                 # get randomly other 3
                 # update opts to send them to the user
                 # correct_answer=   - save here the correct one
+                answers=[opts[0][0].text,opts[1][0].text,opts[2][0].text,opts[3][0].text]
+                random.shuffle(answers)
+
+
+                correct_answer = opts[0][0].text
 
                 bot.send_message(message.chat.id, u'Question ' + str(cont + 1))
                 bot.send_message(message.chat.id, q)
-                markup = types.ReplyKeyboardMarkup()
-                itembtnone = types.KeyboardButton(opts[0])
-                itembtntwo = types.KeyboardButton(opts[1])
-                itembtnthree = types.KeyboardButton(opts[2])
-                itembtnfour = types.KeyboardButton(opts[3])
-                markup.row(itembtnone, itembtntwo)
-                markup.row(itembtnthree, itembtnfour)
-                bot.send_message(message.chat.id, u'Choose one option:', reply_markup=markup)
+
+                if(cont<cut_index):
+                    markup = types.ReplyKeyboardMarkup()
+                    itembtnone = types.KeyboardButton(answers[0])
+                    itembtntwo = types.KeyboardButton(answers[1])
+                    itembtnthree = types.KeyboardButton(answers[2])
+                    itembtnfour = types.KeyboardButton(answers[3])
+                    markup.row(itembtnone, itembtntwo)
+                    markup.row(itembtnthree, itembtnfour)
+                    bot.send_message(message.chat.id, u'Choose one option:', reply_markup=markup)
+                else:
+                    markup = types.ReplyKeyboardRemove(selective=False)
+                    bot.send_message(message.chat.id, u'Type the answer', reply_markup=markup)
+
 
 
             else:
                 if correct_answer == message.text:
                     bot.send_message(message.chat.id, u'Correct!')
                     correct = correct + 1
+                    answers_user.append(1)
                 else:
                     bot.send_message(message.chat.id, u'Incorrect!')
+                    answers_user.append(0)
 
+                answers_factor.append(0.5) if cont < cut_index else answers_factor.append(1.5)
                 cont = cont + 1
                 # print cont
                 # print correct
+
+
                 state_answering = False
 
                 markup = types.ReplyKeyboardRemove(selective=False)
 
-                percentage = (float(correct) / float(cont)) * 100
+                a = np.array(answers_user)
+                b = np.array(answers_factor)
+
+                score = sum(a * b) / sum(answers_factor)
+
+                #percentage = (float(correct) / float(cont)) * 100
 
                 bot.send_message(message.chat.id,
-                                 u'You have answered the ' + str(percentage) + u'% of the answers correctly',
+                                 u'Your score is ' + str(score) + u' out of 1',
                                  reply_markup=markup)
 
                 #here once you have estimated the user knowledge, save it to the db?
@@ -189,6 +260,7 @@ def check_answer(message):
                 state_theme = False
 
     else:
+
         if state_theme:
             difficulty = message.text
             # Getting themes from connector
