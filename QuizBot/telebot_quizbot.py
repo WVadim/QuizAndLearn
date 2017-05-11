@@ -250,11 +250,36 @@ def check_answer(message):
                 #percentage = (float(correct) / float(cont)) * 100
 
                 bot.send_message(message.chat.id,
-                                 u'Your score is ' + str(score) + u' out of 1',
+                                 u'Your score is ' + str(round(score,2)) + u' out of 1',
                                  reply_markup=markup)
 
                 #here once you have estimated the user knowledge, save it to the db?
                 #send to the user a course link according to the knowledge
+
+                t=DBInterace.GetThemeByLabelAndParent(label=theme,parent=0)
+                d=DBInterace.GetDifficultyByLabel(difficulty)
+
+
+                if(score<=0.25):
+                    if(d.id!=1):
+                        course_dif=d.id-1
+                        message=u"You should try an easier quiz. We recommend you this course to improve:"
+
+                elif(score>0.25 and score<0.75):
+                        course_dif=d.id
+                        message=u'We recommend you this course:'
+                else:
+                    if(d.id!=2):
+                        course_dif=d.id+1
+                        message = u"You should try a harder quiz. We recommend you this course to improve:"
+
+
+
+                source = DBInterace.GetSource(difficulty=course_dif, theme=t)
+
+
+                bot.send_message(message.chat.id,message,reply_markup=markup)
+                bot.send_message(message.chat.id, source.website, reply_markup=markup)
 
                 state_requested = False
                 state_theme = False
