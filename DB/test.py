@@ -154,6 +154,22 @@ answer58 =DBInterace.s_CreateAnswer(58,"12")
 answer59 =DBInterace.s_CreateAnswer(59,"What nationality is Stosur?")
 answer60 =DBInterace.s_CreateAnswer(60,"Frankie Dettori")
 
+
+DBInterace.CreateSource(id=None,difficulty=1,theme=1,website=u'https://es.coursera.org/learn/dog-emotion-and-cognition')
+DBInterace.CreateSource(id=None,difficulty=2,theme=1,website=u'https://es.coursera.org/learn/dog-emotion-and-cognition')
+DBInterace.CreateSource(id=None,difficulty=3,theme=1,website=u'https://es.coursera.org/learn/dog-emotion-and-cognition')
+DBInterace.CreateSource(id=None,difficulty=1,theme=2,website=u'https://alison.com/course/Google-Earth')
+DBInterace.CreateSource(id=None,difficulty=2,theme=2,website=u'https://alison.com/course/Google-Earth')
+DBInterace.CreateSource(id=None,difficulty=3,theme=2,website=u'https://alison.com/course/Google-Earth')
+DBInterace.CreateSource(id=None,difficulty=1,theme=3,website=u'https://es.coursera.org/learn/animal-behaviour')
+DBInterace.CreateSource(id=None,difficulty=2,theme=3,website=u'https://es.coursera.org/learn/animal-behaviour')
+DBInterace.CreateSource(id=None,difficulty=3,theme=3,website=u'https://es.coursera.org/learn/animal-behaviour')
+DBInterace.CreateSource(id=None,difficulty=1,theme=5,website=u'https://es.coursera.org/learn/art-activity')
+DBInterace.CreateSource(id=None,difficulty=2,theme=5,website=u'https://es.coursera.org/learn/art-activity')
+DBInterace.CreateSource(id=None,difficulty=3,theme=5,website=u'https://es.coursera.org/learn/art-activity')
+
+
+
 knowledge = DBInterace.GetKnowledge(person=1)
 print 'Person knowledge :', knowledge
 
