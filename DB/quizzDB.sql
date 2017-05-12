@@ -16,8 +16,6 @@ CREATE TABLE Person (
 
 SELECT 'PERSON TABLE CREATED' AS '';
 
-INSERT INTO Person (ID, FirstName, SecondName) VALUE (0, 'UNKNOWN', 'UNKNOWN');
-
 SELECT * FROM Person;
 
 CREATE TABLE Difficulty (
@@ -27,8 +25,6 @@ CREATE TABLE Difficulty (
 );
 
 SELECT 'DIFFICULTY TABLE CREATED' AS '';
-
-INSERT INTO Difficulty (Difficulty) VALUE ('UNKNOWN');
 
 SELECT * FROM Difficulty;
 
@@ -40,8 +36,6 @@ CREATE TABLE Theme (
 );
 
 SELECT 'THEME TABLE CREATED' AS '';
-
-INSERT INTO Theme (Label, Parent) VALUE ('UNKNOWN', 0);
 
 SELECT * FROM Theme;
 
@@ -59,8 +53,6 @@ ALTER TABLE Knowledge	ADD CONSTRAINT KnowledgeTheme 	FOREIGN KEY (Theme)	 	REFER
 
 SELECT 'KNOWLEDGE TABLE CREATED' AS '';
 
-INSERT INTO Knowledge (Person, Difficulty, Theme) VALUE (0, 1, 1);
-
 SELECT * FROM Knowledge;
 
 CREATE TABLE Source (
@@ -75,8 +67,6 @@ ALTER TABLE Source	ADD CONSTRAINT ResourceTheme 	FOREIGN KEY (Theme)	 	REFERENCE
 ALTER TABLE Source	ADD CONSTRAINT ResourceDiff	FOREIGN KEY (Difficulty)	REFERENCES Difficulty(ID);
 
 SELECT 'SOURCE TABLE CREATED' AS '';
-
-INSERT INTO Source (Website, Theme, Difficulty) VALUE ('localhost', 1, 1);
 
 SELECT * FROM Source;
 
@@ -96,8 +86,6 @@ ALTER TABLE Question 	ADD CONSTRAINT QuestionCreator 	FOREIGN KEY (Creator)	 	RE
 
 SELECT 'QUESTION TABLE CREATED' AS '';
 
-INSERT INTO Question (Text, Difficulty, Theme, Creator, TotalAnswers) VALUE ('', 1, 1, 0, 0);
-
 SELECT * FROM Question;
 
 CREATE TABLE Answer (
@@ -111,7 +99,5 @@ CREATE TABLE Answer (
 ALTER TABLE Answer	ADD CONSTRAINT QuestionRefer 	FOREIGN KEY (Question)	 	REFERENCES Question(ID);
 
 SELECT 'ANSWER TABLE CREATED' AS '';
-
-INSERT INTO Answer (Question, Frequency, Text) VALUE (1, 0, '');
 
 SELECT * FROM Answer;

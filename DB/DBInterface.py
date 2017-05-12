@@ -10,7 +10,8 @@ class DBInterace:
     def __init__(self):
         assert False
 
-    def GetQuizAnswers(self, question, amount_of_answers=4):
+    @staticmethod
+    def GetQuizAnswers(question, amount_of_answers=4):
         correct_answers = DBInterace.GetAnswer(question=question.id)
         if len(correct_answers) == 0:
             return [(None, None)]
@@ -32,7 +33,7 @@ class DBInterace:
         final = []
         for question in all_questions:
             answer_list = DBInterace.GetAnswer(question=question.id)
-            acc_freq = sum([item.freqency for item in answer_list])
+            acc_freq = sum([item.frequency for item in answer_list])
             if acc_freq < minimum_answers:
                 final.append(question)
         return final

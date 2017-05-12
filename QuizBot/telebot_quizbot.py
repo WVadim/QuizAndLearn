@@ -9,8 +9,9 @@ from telebot import types
 from DB.DBInterface import *
 import random
 import numpy as np
+import enchant
 
-bot = telebot.TeleBot("335396227:AAEJ5MWykURPRRFTMNso2NFT90o6Jn93bz8")
+bot = telebot.TeleBot("349235321:AAEfEdcrb7mGmJmSXwhK7u-2pLmX6_WgGL8")
 state_requested = None
 state_answering = None
 state_theme = None
@@ -30,7 +31,7 @@ correct = 0
 correct_answer = ''
 index_themes = 0
 
-
+spell_checker = enchant.Dict("en_US")
 @bot.message_handler(commands=[u'start', u'help'])
 def send_welcome(message):
     bot.send_message(message.chat.id, u'Welcome to quizBot. Use /push to ask a question and /quiz to request questions from me')
@@ -50,7 +51,7 @@ def pull(message):
     global index_themes
     global answers_user
     global answers_factor
-
+    global spell_checker
 
 
     cont=0
@@ -175,9 +176,11 @@ def check_answer(message):
 
 
         else:
+            suggestions = spell_checker.suggest(message.text)
             q = questions[cont].text
             if cont < questions.__len__() - 1:
-                if correct_answer == message.text:
+
+                if correct_answer == message.text or (len(suggestions) != 0 and suggestions[0] == correct_answer):
                     bot.send_message(message.chat.id, u'Correct!')
                     correct = correct + 1
                     answers_user.append(1)
@@ -224,7 +227,7 @@ def check_answer(message):
 
 
             else:
-                if correct_answer == message.text:
+                if correct_answer == message.text or (len(suggestions) != 0 and suggestions[0] == correct_answer):
                     bot.send_message(message.chat.id, u'Correct!')
                     correct = correct + 1
                     answers_user.append(1)
@@ -259,29 +262,41 @@ def check_answer(message):
                 t=DBInterace.GetThemeByLabelAndParent(label=theme,parent=0)
                 d=DBInterace.GetDifficultyByLabel(difficulty)
 
+                course_dif = -1
+                print "Score", score, "ID", d.id
+                m = u"We have nothing to help you, you are too stupid or too smart"
+                hard_difficulty_id = DBInterace.GetDifficultyByLabel("Hard").id
+                easy_difficulty_id = DBInterace.GetDifficultyByLabel("Easy").id
 
                 if(score<=0.25):
-                    if(d.id!=1):
-                        course_dif=d.id-1
-                        m=u"You should try an easier quiz. We recommend you this course to improve:"
+                    if(d.id != easy_difficulty_id):
+                        course_dif = d.id - 1
+                        m = u"You should try an easier quiz. We recommend you this course to improve:"
+                    else:
+                        course_dif = d.id
+                        m = u"You are too stupid, but try this, try not to cry."
 
                 elif(score>0.25 and score<0.75):
                         course_dif=d.id
                         m=u'We recommend you this course:'
                 else:
-                    if(d.id!=2):
+                    if(d.id != hard_difficulty_id):
                         course_dif=d.id+1
                         m = u"You should try a harder quiz. We recommend you this course to improve:"
+                    else:
+                        course_dif = d.id
+                        m = u"Ok, you are too good, this is the best offer for you, or go to arxiv.org"
 
-
-
-                source = DBInterace.GetSource(difficulty=course_dif, theme=t)
+                if course_dif < 0:
+                    source = "No link"
+                else:
+                    source = DBInterace.GetSource(difficulty=course_dif, theme=t)[0].website
 
                 #print(source[0].website)
 
 
                 bot.send_message(message.chat.id,m,reply_markup=markup)
-                bot.send_message(message.chat.id, source[0].website, reply_markup=markup)
+                bot.send_message(message.chat.id, source, reply_markup=markup)
 
                 state_requested = False
                 state_theme = False
