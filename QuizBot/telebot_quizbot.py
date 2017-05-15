@@ -11,7 +11,7 @@ import random
 import numpy as np
 import enchant
 
-bot = telebot.TeleBot("349235321:AAEfEdcrb7mGmJmSXwhK7u-2pLmX6_WgGL8")
+bot = telebot.TeleBot("335396227:AAEJ5MWykURPRRFTMNso2NFT90o6Jn93bz8")
 state_requested = None
 state_answering = None
 state_theme = None
@@ -258,7 +258,8 @@ def check_answer(message):
 
                 #here once you have estimated the user knowledge, save it to the db?
                 #send to the user a course link according to the knowledge
-
+                print (theme)
+                print (difficulty)
                 t=DBInterace.GetThemeByLabelAndParent(label=theme,parent=0)
                 d=DBInterace.GetDifficultyByLabel(difficulty)
 
@@ -304,7 +305,8 @@ def check_answer(message):
     else:
 
         if state_theme:
-            difficulty = message.text
+            if(message.text != u'-NEXT-'):
+                difficulty = message.text
             # Getting themes from connector
             themes = DBInterace.GetTheme()
 
