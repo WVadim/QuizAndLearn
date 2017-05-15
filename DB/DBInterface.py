@@ -3,6 +3,7 @@ from PeeWeeController import *
 from IndistinctSearch.QuestionComparator import egoistic_comparator
 import numpy as np
 
+np.random.seed(123)
 
 class DBInterace:
 

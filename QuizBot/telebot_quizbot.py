@@ -11,7 +11,7 @@ import random
 import numpy as np
 import enchant
 
-bot = telebot.TeleBot("335396227:AAEJ5MWykURPRRFTMNso2NFT90o6Jn93bz8")
+bot = telebot.TeleBot("387491312:AAG1--r1wR5u7n7LhkK12fYZAsyKagk6jvY")
 state_requested = None
 state_answering = None
 state_theme = None
@@ -34,7 +34,7 @@ index_themes = 0
 spell_checker = enchant.Dict("en_US")
 @bot.message_handler(commands=[u'start', u'help'])
 def send_welcome(message):
-    bot.send_message(message.chat.id, u'Welcome to quizBot. Use /push to ask a question and /quiz to request questions from me')
+    bot.send_message(message.chat.id, u'Welcome to quizBot. Use /quiz to request questions from me')
 
 @bot.message_handler(commands=[u'push'])
 def push(message):

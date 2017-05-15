@@ -15,7 +15,7 @@ geography_theme = DBInterace.s_CreateTheme(label='Geography', parent=0)
 print 'Theme created, label :', geography_theme.label
 biology_mammals = DBInterace.s_CreateTheme(label='Mammals', parent=biology_theme.id)
 print 'Theme Biology-Mammals created, label :', biology_mammals.label
-geography_mammals = DBInterace.s_CreateTheme(label='Mammals', parent=geography_theme.id)
+geography_mammals = DBInterace.s_CreateTheme(label='Literature', parent=0)
 print 'Theme Geography-Mammals created, label :', geography_mammals.label
 geography_mammals = DBInterace.s_CreateTheme(label='Arts',  parent=0)
 geography_mammals = DBInterace.s_CreateTheme(label='Enterteinment',  parent=0)
